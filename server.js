@@ -1,4 +1,6 @@
 require('dotenv').config();
+const cors = require('cors');
+
 const express = require('express');
 const multer = require('multer');
 const { sendEmail } = require('./mailer');
@@ -11,6 +13,12 @@ const upload = multer({
 
 const app = express();
 app.use(express.json());
+app.use(cors({
+  origin: "http://localhost:5173", // your React frontend port
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"],
+}));
+
 
 // For JSON requests (confirmation email)
 app.post('/send-email', (req, res) => {
@@ -58,6 +66,7 @@ async function handleJsonEmail(req, res) {
     res.status(500).json({ success: false, message: 'Failed to send email' });
   }
 }
+app.options("/send-email", cors());
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
